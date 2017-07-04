@@ -1,0 +1,12 @@
+hash: d9475eba3a56bbb8c9d420953f2423dc3ebb6afb980d35d4b8ac3001cec2d439
+updated: 2017-07-04T23:23:44.594317548+08:00
+imports:
+- name: github.com/gorilla/mux
+  version: bcd8bc72b08df0f70df986b97f95590779502d31
+- name: github.com/Jeffail/gabs
+  version: 2a3aa15961d5fee6047b8151b67ac2f08ba2c48c
+- name: github.com/tidwall/gjson
+  version: c784c417818f59d6597274642d8ac1d09efc9b01
+- name: github.com/tidwall/match
+  version: 173748da739a410c5b0b813b956f89ff94730b4c
+testImports: []
