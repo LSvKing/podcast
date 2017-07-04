@@ -161,7 +161,7 @@ func qingting(id string) []byte {
 
 	for i := 1; i <= pageCount; i++ {
 
-		url := "http://i.qingting.fm/wapi/channels/5142813/programs/page/" + strconv.Itoa(i)
+		url := "http://i.qingting.fm/wapi/channels/" + id + "/programs/page/" + strconv.Itoa(i)
 
 		resp, _ := http.Get(url)
 
