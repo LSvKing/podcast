@@ -9,6 +9,8 @@ import (
 
 	"strconv"
 
+	"time"
+
 	"github.com/gorilla/mux"
 	"github.com/tidwall/gjson"
 )
@@ -20,7 +22,7 @@ type rss struct {
 	Itunes      string   `xml:"xmlns:itunes,attr"`
 	Author      []string `xml:"channel>itunes:author"`
 	Language    string   `xml:"channel>language"`
-	Title       string   `xml:"channel>title"`
+	Title       string   `xml:"channelg>title"`
 	Version     string   `xml:"version,attr"`
 	Image       Image    `xml:"channel>itunes:image"`
 	Summary     string   `xml:"channel>itunes:summary"`
@@ -59,6 +61,8 @@ type Item struct {
 	Duration  string    `xml:"itunes:duration" json:"duration"`
 }
 
+const rfc2822 = "Mon, 2 Jan 2006 15:04:05 UTC+8"
+
 func main() {
 
 	r := mux.NewRouter()
@@ -84,8 +88,6 @@ func FeedHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	fmt.Println(vars["type"])
-
 	var output []byte
 
 	switch vars["type"] {
@@ -97,7 +99,6 @@ func FeedHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Write(output)
 	w.WriteHeader(http.StatusOK)
-	// w.
 }
 
 func qingting(id string) []byte {
@@ -122,11 +123,17 @@ func qingting(id string) []byte {
 
 	json := gjson.ParseBytes(body)
 
+	t, err := time.Parse("2006-01-02 15:04:05", json.Get("data.update_time").String())
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 	rss := rss{
 		Version:     "2",
 		Itunes:      "http://www.itunes.com/dtds/podcast-1.0.dtd",
 		Title:       json.Get("data.name").String(),
-		PubDate:     json.Get("data.update_time").String(),
+		PubDate:     t.Format(rfc2822),
 		Description: json.Get("data.desc").String(),
 		Language:    "zh-cn",
 		Link:        link,
@@ -172,6 +179,13 @@ func qingting(id string) []byte {
 		ijsonArr := gjson.ParseBytes(body).Get("data").Array()
 
 		for _, ijson := range ijsonArr {
+
+			t, err := time.Parse("2006-01-02 15:04:05", ijson.Get("update_time").String())
+
+			if err != nil {
+				fmt.Println(err.Error(), ijson.Get("update_time").String())
+			}
+
 			items = append(items, Item{
 				Title:    ijson.Get("name").String(),
 				Subtitle: ijson.Get("name").String(),
@@ -183,7 +197,7 @@ func qingting(id string) []byte {
 				Image: Image{
 					Href: json.Get("data.img_url").String(),
 				},
-				PubDate:  ijson.Get("update_time").String(),
+				PubDate:  t.Format(rfc2822),
 				Duration: ijson.Get("duration").String(),
 				Guid: Guid{
 					IsPermaLink: "true",

@@ -1,7 +1,5 @@
-package: qingting
+package: podcast
 import:
-- package: github.com/Jeffail/gabs
-  version: ^1.0.0
 - package: github.com/tidwall/gjson
 - package: github.com/gorilla/mux
   version: ^1.4.0
