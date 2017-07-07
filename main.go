@@ -288,11 +288,11 @@ func ximalaya(id string) []byte {
 
 	var items []Item
 
-	resp, _ := http.Get("http://m.ximalaya.com/album/more_tracks?aid=" + id + "&page=1")
+	respList, _ := http.Get("http://m.ximalaya.com/album/more_tracks?aid=" + id + "&page=1")
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := ioutil.ReadAll(respList.Body)
 
-	resp.Body.Close()
+	respList.Body.Close()
 
 	var xiList xiMaList
 
