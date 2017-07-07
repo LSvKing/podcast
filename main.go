@@ -4,13 +4,13 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
-
 	"strconv"
-
 	"time"
 
+	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gorilla/mux"
 	"github.com/tidwall/gjson"
 )
@@ -22,7 +22,7 @@ type rss struct {
 	Itunes      string   `xml:"xmlns:itunes,attr"`
 	Author      []string `xml:"channel>itunes:author"`
 	Language    string   `xml:"channel>language"`
-	Title       string   `xml:"channelg>title"`
+	Title       string   `xml:"channel>title"`
 	Version     string   `xml:"version,attr"`
 	Image       Image    `xml:"channel>itunes:image"`
 	Summary     string   `xml:"channel>itunes:summary"`
@@ -37,7 +37,7 @@ type Image struct {
 
 type Owner struct {
 	Name  string `xml:"name"`
-	Email string `xml:"cemail"`
+	Email string `xml:"email"`
 }
 
 type Enclosure struct {
@@ -65,15 +65,16 @@ const rfc2822 = "Mon, 2 Jan 2006 15:04:05 UTC+8"
 
 func main() {
 
-	r := mux.NewRouter()
-
-	r.HandleFunc("/", HomeHandler)
-
-	r.HandleFunc("/feed/{type}/{id}", FeedHandler)
-
-	r.Headers("Content-Type", "application/xml")
-
-	log.Fatal(http.ListenAndServe(":8071", r))
+	ximalaya("3008")
+	//r := mux.NewRouter()
+	//
+	//r.HandleFunc("/", HomeHandler)
+	//
+	//r.HandleFunc("/feed/{type}/{id}.xml", FeedHandler)
+	//
+	//r.Headers("Content-Type", "application/xml")
+	//
+	//http.ListenAndServe(":8071", r)
 }
 
 func enclosure(u string) string {
@@ -117,6 +118,8 @@ func qingting(id string) []byte {
 
 	// "http://i.qingting.fm/wapi/channels/5142813/programs/page/1"
 
+	fmt.Println(resp.StatusCode)
+
 	body, _ := ioutil.ReadAll(resp.Body)
 
 	resp.Body.Close()
@@ -129,6 +132,8 @@ func qingting(id string) []byte {
 		fmt.Println(err.Error())
 	}
 
+	podcasters := json.Get("data.podcasters").Array()
+
 	rss := rss{
 		Version:     "2",
 		Itunes:      "http://www.itunes.com/dtds/podcast-1.0.dtd",
@@ -138,7 +143,7 @@ func qingting(id string) []byte {
 		Language:    "zh-cn",
 		Link:        link,
 		Author: []string{
-			json.Get("data.podcasters.name").String(),
+			podcasters[0].Get("name").String(),
 		},
 		Image: Image{
 			Href: json.Get("data.img_url").String(),
@@ -146,7 +151,7 @@ func qingting(id string) []byte {
 		Subtitle: json.Get("data.name").String(),
 		Summary:  json.Get("data.desc").String(),
 		Owner: Owner{
-			Name:  json.Get("data.podcasters.name").String(),
+			Name:  podcasters[0].Get("name").String(),
 			Email: "LSvKing@Gmail.com",
 		},
 	}
@@ -171,8 +176,6 @@ func qingting(id string) []byte {
 		url := "http://i.qingting.fm/wapi/channels/" + id + "/programs/page/" + strconv.Itoa(i)
 
 		resp, _ := http.Get(url)
-
-		// "http://i.qingting.fm/wapi/channels/5142813/programs/page/1"
 
 		body, _ := ioutil.ReadAll(resp.Body)
 
@@ -219,4 +222,116 @@ func qingting(id string) []byte {
 	o := []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + string(output))
 
 	return o
+}
+
+func ximalaya(id string) {
+
+	link := "http://m.ximalaya.com/1000262/album/" + id
+
+	doc, _ := goquery.NewDocument(link)
+
+	image, _ := doc.Find(".album-face img").Attr("src")
+
+	rss := rss{
+		Title: doc.Find(".album-tit").Text(),
+		Author: []string{
+			strings.TrimSpace(doc.Find(".nickname").Text()),
+		},
+		Summary:     strings.TrimSpace(doc.Find(".intro-breviary").Text()),
+		Description: strings.TrimSpace(doc.Find(".intro-breviary").Text()),
+		Subtitle:    doc.Find(".album-tit").Text(),
+		Version:     "2",
+		Itunes:      "http://www.itunes.com/dtds/podcast-1.0.dtd",
+		Link:        link,
+		Language:    "zh-cn",
+		Image: Image{
+			Href: image,
+		},
+		Owner: Owner{
+			Name:  strings.TrimSpace(doc.Find(".nickname").Text()),
+			Email: "LSvKing@Gmail.com",
+		},
+		//PubDate:     doc.Find("span.mgr-5").Text(),
+	}
+
+	var items []Item
+
+	output, err := xml.MarshalIndent(rss, "  ", "    ")
+
+	fmt.Printf("%+v\n", rss)
+
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
+	o := []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + string(output))
+
+	fmt.Println(string(o))
+
+	resp, _ := http.Get("http://m.ximalaya.com/album/more_tracks?aid=3008&page=1")
+
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	resp.Body.Close()
+
+	json := gjson.ParseBytes(body)
+
+	var sound_ids []int64
+
+	next_page := json.Get("next_page").Int()
+
+	json.Get("sound_ids").ForEach(func(key, value gjson.Result) bool {
+		sound_ids = append(sound_ids, value.Int())
+		return true
+	})
+
+	for next_page != 0 {
+		resp, _ := http.Get("http://m.ximalaya.com/album/more_tracks?aid=3008&page=" + strconv.Itoa(int(next_page)))
+
+		body, _ := ioutil.ReadAll(resp.Body)
+
+		json := gjson.ParseBytes(body)
+
+		resp.Body.Close()
+
+		json.Get("sound_ids").ForEach(func(key, value gjson.Result) bool {
+			sound_ids = append(sound_ids, value.Int())
+			return true
+		})
+
+		next_page = json.Get("next_page").Int()
+	}
+
+	//fmt.Println(sound_ids)
+
+	//http://www.ximalaya.com/tracks/199237.json
+	for _, id := range sound_ids {
+
+		resp, _ := http.Get("http://www.ximalaya.com/tracks/" + strconv.Itoa(int(id)) + ".json")
+
+		body, _ := ioutil.ReadAll(resp.Body)
+
+		json := gjson.ParseBytes(body)
+
+		//t := time.Parse("")
+
+		items = append(items,Item{
+			Title:json.Get("title").String(),
+			Subtitle:json.Get("title").String(),
+			Author:json.Get("nickname").String(),
+			PubDate:,
+			Summary:json.Get("intro").String(),
+			Guid:Guid{
+				IsPermaLink:"true",
+			},
+			Image:Image{},
+			Enclosure:Enclosure{
+				Url:json.Get("play_path_64").String(),
+				Type:"audio/mpeg",
+			},
+			Duration:json.Get("duration").String(),
+		})
+		resp.Body.Close()
+
+	}
 }
