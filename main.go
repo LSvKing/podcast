@@ -315,21 +315,21 @@ func ximalaya(id string) {
 
 		//t := time.Parse("")
 
-		items = append(items,Item{
-			Title:json.Get("title").String(),
-			Subtitle:json.Get("title").String(),
-			Author:json.Get("nickname").String(),
-			PubDate:,
-			Summary:json.Get("intro").String(),
-			Guid:Guid{
-				IsPermaLink:"true",
+		items = append(items, Item{
+			Title:    json.Get("title").String(),
+			Subtitle: json.Get("title").String(),
+			Author:   json.Get("nickname").String(),
+			//PubDate:,
+			Summary: json.Get("intro").String(),
+			Guid: Guid{
+				IsPermaLink: "true",
 			},
-			Image:Image{},
-			Enclosure:Enclosure{
-				Url:json.Get("play_path_64").String(),
-				Type:"audio/mpeg",
+			Image: Image{},
+			Enclosure: Enclosure{
+				Url:  json.Get("play_path_64").String(),
+				Type: "audio/mpeg",
 			},
-			Duration:json.Get("duration").String(),
+			Duration: json.Get("duration").String(),
 		})
 		resp.Body.Close()
 
