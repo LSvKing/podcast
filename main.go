@@ -128,6 +128,10 @@ func qingting(id string) []byte {
 
 	json := gjson.ParseBytes(body)
 
+	if json.Get("code").Int() == 1 {
+		return []byte("不存在")
+	}
+
 	t, err := time.Parse("2006-01-02 15:04:05", json.Get("data.update_time").String())
 
 	if err != nil {
@@ -248,7 +252,15 @@ func ximalaya(id string) []byte {
 
 	link := "http://m.ximalaya.com/1000262/album/" + id
 
-	doc, _ := goquery.NewDocument(link)
+	resp, err := http.Get(link)
+
+	if err != nil && resp.StatusCode == http.StatusNotFound {
+		return []byte("资源不存在")
+	}
+
+	doc, _ := goquery.NewDocumentFromResponse(resp)
+
+	resp.Body.Close()
 
 	image, _ := doc.Find(".album-face img").Attr("src")
 
