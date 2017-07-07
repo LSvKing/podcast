@@ -254,7 +254,7 @@ func ximalaya(id string) []byte {
 
 	resp, err := http.Get(link)
 
-	if err != nil && resp.StatusCode == http.StatusNotFound {
+	if err != nil || resp.StatusCode == http.StatusNotFound {
 		return []byte("资源不存在")
 	}
 
