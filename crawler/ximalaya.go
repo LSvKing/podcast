@@ -91,10 +91,9 @@ func Ximalaya(id string) []byte {
 		}
 
 		rss.PubDate = t.Format(rfc2822)
-
 	}
 
-	fmt.Println(rss)
+	fmt.Printf("%+v\n", rss)
 
 	var items []Item
 
