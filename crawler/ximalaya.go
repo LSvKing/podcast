@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"time"
 )
 
 func Ximalaya(id string) []byte {
@@ -57,9 +58,6 @@ func Ximalaya(id string) []byte {
 
 	nickname := strings.TrimSpace(re.FindAllStringSubmatch(h, 1)[0][1])
 
-	mgr5 := doc.Find(".mgr-5").Text()
-
-	pubdateArr := strings.Split(mgr5,":")
 
 	rss := rss{
 		Title: doc.Find(".detailContent_title h1").Text(),
@@ -80,7 +78,20 @@ func Ximalaya(id string) []byte {
 			Name:  nickname,
 			Email: "LSvKing@Gmail.com",
 		},
-		PubDate:     strings.TrimSpace(pubdateArr[1]),
+	}
+
+	if doc.HasClass(".mgr5") {
+		mgr5 := doc.Find(".mgr5").Text()
+		pubdateArr := strings.Split(mgr5,":")
+
+		t, err := time.Parse("2006-01-02", pubdateArr[1])
+
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+
+		rss.PubDate = t.Format(rfc2822)
+
 	}
 
 	fmt.Println(rss)
