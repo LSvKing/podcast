@@ -1,17 +1,19 @@
 package crawler
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/PuerkitoBio/goquery"
 	"time"
+
+	"encoding/json"
+	"io/ioutil"
+
+	"github.com/LSvKing/podcast/cache"
+	"github.com/PuerkitoBio/goquery"
 )
 
 func Ximalaya(id string) []byte {
@@ -34,7 +36,7 @@ func Ximalaya(id string) []byte {
 		}
 	)
 
-	link := "http://www.ximalaya.com/1000262/album/" + id
+	link := "http://www.ximalaya.com/album/" + id
 
 	resp, err := http.Get(link)
 
@@ -45,6 +47,27 @@ func Ximalaya(id string) []byte {
 	doc, _ := goquery.NewDocumentFromResponse(resp)
 
 	resp.Body.Close()
+
+	realLink := doc.Url.String()
+
+	//if doc.Find(".mgr-5").Size() > 0 {
+	mgr5 := doc.Find(".mgr-5").Text()
+
+	pubdateArr := strings.Split(mgr5, ":")
+
+	data := strings.TrimSpace(pubdateArr[1])
+
+	t, err := time.Parse("2006-01-02", data)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	if cache.New().Has("xima-" + id + "|" + data) {
+		c, _ := cache.New().Get("xima-" + id + "|" + data)
+		return c
+	}
+	//}
 
 	image, _ := doc.Find(".albumface180 img").Attr("src")
 
@@ -57,7 +80,6 @@ func Ximalaya(id string) []byte {
 	re, _ := regexp.Compile(`(?s)^(.*)\<i`)
 
 	nickname := strings.TrimSpace(re.FindAllStringSubmatch(h, 1)[0][1])
-
 
 	rss := rss{
 		Title: doc.Find(".detailContent_title h1").Text(),
@@ -74,104 +96,95 @@ func Ximalaya(id string) []byte {
 		Image: Image{
 			Href: image,
 		},
+		PubDate: t.Format(time.RFC1123),
 		Owner: Owner{
 			Name:  nickname,
 			Email: "LSvKing@Gmail.com",
 		},
 	}
 
-	if doc.HasClass(".mgr5") {
-		mgr5 := doc.Find(".mgr5").Text()
-		pubdateArr := strings.Split(mgr5,":")
+	if doc.Find(".mgr-5").Size() > 0 {
+		mgr5 := doc.Find(".mgr-5").Text()
 
-		t, err := time.Parse("2006-01-02", pubdateArr[1])
+		pubdateArr := strings.Split(mgr5, ":")
+
+		t, err := time.Parse("2006-01-02", strings.TrimSpace(pubdateArr[1]))
 
 		if err != nil {
 			fmt.Println(err.Error())
 		}
 
-		rss.PubDate = t.Format(rfc2822)
+		rss.PubDate = t.Format(time.RFC1123)
 	}
-
-	fmt.Printf("%+v\n", rss)
 
 	var items []Item
 
-	respList, _ := http.Get("http://m.ximalaya.com/album/more_tracks?aid=" + id + "&page=1")
+	pageCount := doc.Find(".pagingBar .pagingBar_page").Last().Prev().Text()
 
-	body, _ := ioutil.ReadAll(respList.Body)
+	page, _ := strconv.Atoi(pageCount)
 
-	respList.Body.Close()
+	for i := 1; i <= page; i++ {
+		u := realLink + "?page=" + strconv.Itoa(i)
 
-	var xiList xiMaList
+		docList, _ := goquery.NewDocument(u)
 
-	json.Unmarshal(body, &xiList)
+		docList.Find(".album_soundlist ul li").Each(func(i int, selection *goquery.Selection) {
+			sound_id, _ := selection.Attr("sound_id")
 
-	var soundIds []int
+			resp, _ := http.Get("http://www.ximalaya.com/tracks/" + sound_id + ".json")
 
-	soundIds = append(soundIds, xiList.SoundIds...)
+			body, _ := ioutil.ReadAll(resp.Body)
 
-	for xiList.NextPage != 0 {
-		resp, _ := http.Get("http://m.ximalaya.com/album/more_tracks?aid=" + id + "&page=" + strconv.Itoa(int(xiList.NextPage)))
+			var xiItem xiMaItem
 
-		body, _ := ioutil.ReadAll(resp.Body)
+			json.Unmarshal(body, &xiItem)
 
-		err := json.Unmarshal(body, &xiList)
+			t, err := time.Parse("2006-01-02", strings.TrimSpace(selection.Find(".operate span").Text()))
 
-		if err != nil {
-			fmt.Println(err)
-		}
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 
-		resp.Body.Close()
+			pubDate := t.Format(time.RFC1123)
 
-		soundIds = append(soundIds, xiList.SoundIds...)
-	}
+			items = append(items, Item{
+				Title:    xiItem.Title,
+				Subtitle: xiItem.Title,
+				Author:   xiItem.NickName,
+				PubDate:  pubDate,
+				Summary:  xiItem.Intro,
+				Guid: Guid{
+					IsPermaLink: "true",
+				},
+				Image: Image{
+					Href: xiItem.CoverURL,
+				},
+				Enclosure: Enclosure{
+					Url:  xiItem.PlayPath,
+					Type: "audio/mpeg",
+				},
+				Duration: xiItem.Duration,
+			})
 
-	//http://www.ximalaya.com/tracks/199237.json
-
-	for _, id := range soundIds {
-
-		resp, _ := http.Get("http://www.ximalaya.com/tracks/" + strconv.Itoa(int(id)) + ".json")
-
-		body, _ := ioutil.ReadAll(resp.Body)
-
-		var xiItem xiMaItem
-
-		json.Unmarshal(body, &xiItem)
-
-		items = append(items, Item{
-			Title:    xiItem.Title,
-			Subtitle: xiItem.Title,
-			Author:   xiItem.NickName,
-			//PubDate:,
-			Summary: xiItem.Intro,
-			Guid: Guid{
-				IsPermaLink: "true",
-			},
-			Image: Image{
-				Href: xiItem.CoverURL,
-			},
-			Enclosure: Enclosure{
-				Url:  xiItem.PlayPath,
-				Type: "audio/mpeg",
-			},
-			Duration: xiItem.Duration,
+			resp.Body.Close()
 		})
-
-		resp.Body.Close()
 	}
 
 	rss.Item = items
 
+	fmt.Println(len(items))
+
 	output, err := xml.MarshalIndent(rss, "  ", "    ")
 
-	// fmt.Printf("%+v\n", rss)
+	//fmt.Printf("%+v\n", rss)
 
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 	}
 
 	o := []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + string(output))
+
+	cache.New().Set("xima-"+id+"|"+data, o, 24*time.Hour)
 
 	return o
 	// fmt.Println(string(o))

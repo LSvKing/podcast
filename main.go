@@ -8,16 +8,16 @@ import (
 )
 
 func main() {
-	// r := mux.NewRouter()
+	r := mux.NewRouter()
 
-	// r.HandleFunc("/", HomeHandler)
+	r.HandleFunc("/", HomeHandler)
 
-	// r.HandleFunc("/feed/{type}/{id}.xml", FeedHandler)
+	r.HandleFunc("/feed/{type}/{id}.xml", FeedHandler)
 
-	// r.Headers("Content-Type", "application/xml")
+	r.Headers("Content-Type", "application/xml")
 
-	// http.ListenAndServe(":8071", r)
-	crawler.Ximalaya("5163889")
+	http.ListenAndServe(":8071", r)
+	//crawler.Ximalaya("2684111")
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
