@@ -138,8 +138,6 @@ func qingting(id string) []byte {
 		fmt.Println(err.Error())
 	}
 
-	podcasters := json.Get("data.podcasters").Array()
-
 	rss := rss{
 		Version:     "2",
 		Itunes:      "http://www.itunes.com/dtds/podcast-1.0.dtd",
@@ -148,18 +146,23 @@ func qingting(id string) []byte {
 		Description: json.Get("data.desc").String(),
 		Language:    "zh-cn",
 		Link:        link,
-		Author: []string{
-			podcasters[0].Get("name").String(),
-		},
 		Image: Image{
 			Href: json.Get("data.img_url").String(),
 		},
 		Subtitle: json.Get("data.name").String(),
 		Summary:  json.Get("data.desc").String(),
 		Owner: Owner{
-			Name:  podcasters[0].Get("name").String(),
 			Email: "LSvKing@Gmail.com",
 		},
+	}
+
+	if json.Get("data.podcasters").Exists() {
+		podcasters := json.Get("data.podcasters").Array()
+		rss.Author = []string{
+			podcasters[0].Get("name").String(),
+		}
+		rss.Owner.Name = podcasters[0].Get("name").String()
+
 	}
 
 	program_count := json.Get("data.program_count").Int()
@@ -253,6 +256,8 @@ func ximalaya(id string) []byte {
 	link := "http://m.ximalaya.com/1000262/album/" + id
 
 	resp, err := http.Get(link)
+
+	fmt.Println(resp.StatusCode)
 
 	if err != nil || resp.StatusCode == http.StatusNotFound {
 		return []byte("资源不存在")
