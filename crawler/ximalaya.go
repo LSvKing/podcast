@@ -58,6 +58,10 @@ func Ximalaya(id string) []byte {
 
 	nickname := strings.TrimSpace(re.FindAllStringSubmatch(h, 1)[0][1])
 
+	mgr5 := doc.Find(".mgr-5").Text()
+
+	pubdateArr := strings.Split(mgr5,":")
+
 	rss := rss{
 		Title: doc.Find(".detailContent_title h1").Text(),
 		Author: []string{
@@ -77,10 +81,8 @@ func Ximalaya(id string) []byte {
 			Name:  nickname,
 			Email: "LSvKing@Gmail.com",
 		},
-		//PubDate:     doc.Find("span.mgr-5").Text(),
+		PubDate:     strings.TrimSpace(pubdateArr[1]),
 	}
-
-	// fmt.Println(rss)
 
 	var items []Item
 
@@ -124,7 +126,6 @@ func Ximalaya(id string) []byte {
 
 		var xiItem xiMaItem
 
-		// fmt.Println(string(body))
 		json.Unmarshal(body, &xiItem)
 
 		items = append(items, Item{
