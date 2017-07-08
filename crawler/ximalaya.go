@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
-
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -83,6 +82,8 @@ func Ximalaya(id string) []byte {
 		},
 		PubDate:     strings.TrimSpace(pubdateArr[1]),
 	}
+
+	fmt.Println(rss)
 
 	var items []Item
 
