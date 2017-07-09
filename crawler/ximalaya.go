@@ -121,7 +121,8 @@ func Ximalaya(id string) []byte {
 
 	pageCount := doc.Find(".pagingBar .pagingBar_page").Last().Prev().Text()
 
-	page, _ := strconv.Atoi(pageCount)
+	page := 1
+	page, _ = strconv.Atoi(pageCount)
 
 	for i := 1; i <= page; i++ {
 		u := realLink + "?page=" + strconv.Itoa(i)
