@@ -44,6 +44,8 @@ func Ximalaya(id string) []byte {
 		return []byte("资源不存在")
 	}
 
+	// fmt.Println(string(resp.Body))
+
 	doc, _ := goquery.NewDocumentFromResponse(resp)
 
 	resp.Body.Close()
@@ -77,7 +79,7 @@ func Ximalaya(id string) []byte {
 		fmt.Println(err)
 	}
 
-	re, _ := regexp.Compile(`(?s)^(.*)\<i`)
+	re, _ := regexp.Compile(`(?s)^(.*)\<`)
 
 	nickname := strings.TrimSpace(re.FindAllStringSubmatch(h, 1)[0][1])
 

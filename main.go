@@ -20,10 +20,12 @@ func main() {
 	//crawler.Ximalaya("2684111")
 }
 
+//HomeHandler Home
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello"))
 }
 
+//FeedHandler Feed
 func FeedHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
