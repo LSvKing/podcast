@@ -79,8 +79,9 @@ func Ximalaya(id string) []byte {
 		fmt.Println(err)
 	}
 
-	re, _ := regexp.Compile(`(?s)^(.*)\<`)
+	re, _ := regexp.Compile(`(?Us)^(.*)\<`)
 
+	fmt.Println(re.FindAllStringSubmatch(h, 1))
 	nickname := strings.TrimSpace(re.FindAllStringSubmatch(h, 1)[0][1])
 
 	rss := rss{
@@ -88,8 +89,8 @@ func Ximalaya(id string) []byte {
 		Author: []string{
 			nickname,
 		},
-		Summary:     TrimHtml(doc.Find(".detailContent_intro").Text()),
-		Description: TrimHtml(doc.Find(".detailContent_intro").Text()),
+		Summary:     TrimHtml(doc.Find(".detailContent_intro article").Text()),
+		Description: TrimHtml(doc.Find(".detailContent_intro article").Text()),
 		Subtitle:    doc.Find(".detailContent_title h1").Text(),
 		Version:     "2",
 		Itunes:      "http://www.itunes.com/dtds/podcast-1.0.dtd",
