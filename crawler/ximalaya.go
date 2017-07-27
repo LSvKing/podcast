@@ -81,7 +81,6 @@ func Ximalaya(id string) []byte {
 
 	re, _ := regexp.Compile(`(?Us)^(.*)\<`)
 
-	fmt.Println(re.FindAllStringSubmatch(h, 1))
 	nickname := strings.TrimSpace(re.FindAllStringSubmatch(h, 1)[0][1])
 
 	rss := rss{
@@ -189,7 +188,7 @@ func Ximalaya(id string) []byte {
 
 	o := []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + string(output))
 
-	cache.New().Set("xima-"+id+"|"+data, o, -1)
+	cache.New().Set("xima-"+id+"|"+data, o, time.Duration(-1))
 
 	return o
 	// fmt.Println(string(o))
