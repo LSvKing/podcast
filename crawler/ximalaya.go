@@ -189,7 +189,7 @@ func Ximalaya(id string) []byte {
 
 	o := []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + string(output))
 
-	cache.New().Set("xima-"+id+"|"+data, o, 24*time.Hour)
+	cache.New().Set("xima-"+id+"|"+data, o, -1)
 
 	return o
 	// fmt.Println(string(o))
