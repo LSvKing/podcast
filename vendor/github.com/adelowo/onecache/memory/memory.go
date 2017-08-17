@@ -11,11 +11,9 @@ import (
 
 func init() {
 	onecache.Extend("memory", func() onecache.Store {
-		i := &InMemoryStore{
+		return &InMemoryStore{
 			data: make(map[string]*onecache.Item),
 		}
-
-		return i
 	})
 }
 
@@ -31,7 +29,7 @@ func NewInMemoryStore(gcInterval time.Duration) *InMemoryStore {
 		data: make(map[string]*onecache.Item),
 	}
 
-	i.GC(gcInterval)
+	go i.GC(gcInterval)
 	return i
 }
 

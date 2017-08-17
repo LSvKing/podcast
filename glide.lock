@@ -1,10 +1,16 @@
-hash: e95dca9d2d7198d782ec0202f8ad67eb4a469aef4a9557dd6bc1a303150e4244
-updated: 2017-07-09T03:28:29.1903589+08:00
+hash: fbf386ffa2db77a0a7195fbe23a0636331828a3175e2fbd7ddcaa6972203b1e8
+updated: 2017-08-17T16:08:58.092554602+08:00
 imports:
 - name: github.com/adelowo/onecache
-  version: 772783fd2d4b0d4afa912b3b4df3c74e536e5648
+  version: faf3e8475cc574f6867afbea864937357ad8de83
+  subpackages:
+  - filesystem
 - name: github.com/andybalholm/cascadia
   version: 349dd0209470eabd9514242c688c403c0926d266
+- name: github.com/golang/protobuf
+  version: ab9f9a6dab164b7d1246e0e688b0ab7b94d8553e
+  subpackages:
+  - proto
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
@@ -12,12 +18,25 @@ imports:
 - name: github.com/PuerkitoBio/goquery
   version: e1271ee34c6a305e38566ecd27ae374944907ee9
 - name: github.com/tidwall/gjson
-  version: c784c417818f59d6597274642d8ac1d09efc9b01
+  version: 4e8f0c7f2819fc0eceeae4d08df9dd92080b1b48
 - name: github.com/tidwall/match
   version: 173748da739a410c5b0b813b956f89ff94730b4c
 - name: golang.org/x/net
-  version: 054b33e6527139ad5b1ec2f6232c3b175bd9a30c
+  version: 1c05540f6879653db88113bc4a2b70aec4bd491f
   subpackages:
+  - context
   - html
   - html/atom
+- name: google.golang.org/appengine
+  version: 150dc57a1b433e64154302bdc40b6bb8aefa313a
+  subpackages:
+  - internal
+  - internal/app_identity
+  - internal/base
+  - internal/datastore
+  - internal/log
+  - internal/memcache
+  - internal/modules
+  - internal/remote_api
+  - memcache
 testImports: []

@@ -12,8 +12,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/LSvKing/podcast/cache"
 	"github.com/PuerkitoBio/goquery"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/memcache"
 )
 
 func Ximalaya(id string) []byte {
@@ -65,10 +66,16 @@ func Ximalaya(id string) []byte {
 		fmt.Println(err.Error())
 	}
 
-	if cache.New().Has("xima-" + id + "|" + data) {
-		c, _ := cache.New().Get("xima-" + id + "|" + data)
-		return c
+	c := appengine.BackgroundContext()
+
+	if item, err := memcache.Get(c, "xima-"+id+"|"+data); err == nil {
+		return item.Value
 	}
+
+	//if cache.New().Has("xima-" + id + "|" + data) {
+	//	c, _ := cache.New().Get("xima-" + id + "|" + data)
+	//	return c
+	//}
 	//}
 
 	image, _ := doc.Find(".albumface180 img").Attr("src")
@@ -189,7 +196,18 @@ func Ximalaya(id string) []byte {
 
 	o := []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + string(output))
 
-	cache.New().Set("xima-"+id+"|"+data, o, 365*24*time.Hour)
+	//cache.New().Set("xima-"+id+"|"+data, o, 365*24*time.Hour)
+
+	it := &memcache.Item{
+		Key:   "xima-" + id + "|" + data,
+		Value: o,
+	}
+
+	if err := memcache.Add(c, it); err == memcache.ErrNotStored {
+		fmt.Println("it with key  already exists", it.Key)
+	} else if err != nil {
+		//log.Errorf(ctx, "error adding item: %v", err)
+	}
 
 	return o
 	// fmt.Println(string(o))
