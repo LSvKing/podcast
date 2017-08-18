@@ -1,6 +1,10 @@
-hash: e95dca9d2d7198d782ec0202f8ad67eb4a469aef4a9557dd6bc1a303150e4244
-updated: 2017-08-18T18:20:20.231306677+08:00
+hash: 5635c0011eb1deaa20599851324592cd8e6c593b7eda016e939c764dddc6fd1f
+updated: 2017-08-19T01:21:58.93331037+08:00
 imports:
+- name: cloud.google.com/go
+  version: 44bcd0b2078ba5e7fedbeb36808d1ed893534750
+  subpackages:
+  - datastore
 - name: github.com/adelowo/onecache
   version: faf3e8475cc574f6867afbea864937357ad8de83
   subpackages:
@@ -17,6 +21,9 @@ imports:
   version: 4e8f0c7f2819fc0eceeae4d08df9dd92080b1b48
 - name: github.com/tidwall/match
   version: 173748da739a410c5b0b813b956f89ff94730b4c
-- name: golang.org/x/net/html
+- name: golang.org/x/net
   version: 1c05540f6879653db88113bc4a2b70aec4bd491f
+  subpackages:
+  - html
+  - html/atom
 testImports: []
