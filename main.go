@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/LSvKing/podcast/crawler"
@@ -16,7 +17,7 @@ func main() {
 
 	r.Headers("Content-Type", "application/xml")
 
-	http.ListenAndServe(":80", r)
+	log.Fatal(http.ListenAndServe(":8080", r))
 	//crawler.Ximalaya("2684111")
 }
 
