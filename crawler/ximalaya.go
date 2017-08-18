@@ -57,17 +57,21 @@ func Ximalaya(id string) []byte {
 
 	pubdateArr := strings.Split(mgr5, ":")
 
-	data := strings.TrimSpace(pubdateArr[1])
+	date := strings.TrimSpace(pubdateArr[1])
 
-	t, err := time.Parse("2006-01-02", data)
+	t, err := time.Parse("2006-01-02", date)
 
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
-	if cache.New().Has("xima-" + id + "|" + data) {
-		c, _ := cache.New().Get("xima-" + id + "|" + data)
-		return c
+	//if cache.New().Has("xima-" + id + "|" + data) {
+	//	c, _ := cache.New().Get("xima-" + id + "|" + data)
+	//	return c
+	//}
+
+	if body, err := cache.Get("xima-" + id + "|" + date); err == nil {
+		return body
 	}
 	//}
 
@@ -189,7 +193,8 @@ func Ximalaya(id string) []byte {
 
 	o := []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + string(output))
 
-	cache.New().Set("xima-"+id+"|"+data, o, 365*24*time.Hour)
+	cache.Set("xima-"+id+"|"+date, o)
+	//cache.New().Set("xima-"+id+"|"+data, o, 365*24*time.Hour)
 
 	return o
 	// fmt.Println(string(o))
