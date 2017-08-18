@@ -7,7 +7,3 @@ import:
   version: ^1.1.0
 - package: github.com/adelowo/onecache
   version: ^2.3.1
-- package: google.golang.org/appengine
-  version: ^1.0.0
-  subpackages:
-  - memcache

@@ -16,7 +16,7 @@ func main() {
 
 	r.Headers("Content-Type", "application/xml")
 
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(":80", r)
 	//crawler.Ximalaya("2684111")
 }
 
