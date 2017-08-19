@@ -81,6 +81,6 @@ func Set(key string, body []byte) {
 		log.Fatalf("Failed to save task: %v", err)
 	}
 
-	fmt.Printf("Saved %v: %v\n", k, c.Body)
+	fmt.Printf("Saved %v: %v\n", k, c.Key)
 
 }
