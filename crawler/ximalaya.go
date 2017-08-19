@@ -12,7 +12,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/LSvKing/podcast/cache"
+	"podcast/cache"
+
 	"github.com/PuerkitoBio/goquery"
 )
 

@@ -4,7 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/LSvKing/podcast/crawler"
+	"podcast/crawler"
+
 	"github.com/gorilla/mux"
 )
 
