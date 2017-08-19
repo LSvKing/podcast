@@ -18,3 +18,5 @@
 /data/cache/*
 .debug
 debug
+glide.lock
+vendor

@@ -21,7 +21,7 @@ import (
 
 type Cache struct {
 	Key  string
-	Body []byte
+	Body []byte `datastore:",noindex"`
 }
 
 func Get(key string) ([]byte, error) {
