@@ -65,11 +65,6 @@ func Ximalaya(id string) []byte {
 		fmt.Println(err.Error())
 	}
 
-	//if cache.New().Has("xima-" + id + "|" + data) {
-	//	c, _ := cache.New().Get("xima-" + id + "|" + data)
-	//	return c
-	//}
-
 	if body, err := cache.Get("xima-" + id + "|" + date); err == nil {
 		return body
 	}
@@ -194,7 +189,6 @@ func Ximalaya(id string) []byte {
 	o := []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + string(output))
 
 	cache.Set("xima-"+id+"|"+date, o)
-	//cache.New().Set("xima-"+id+"|"+data, o, 365*24*time.Hour)
 
 	return o
 	// fmt.Println(string(o))
