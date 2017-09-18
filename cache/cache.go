@@ -3,7 +3,6 @@ package cache
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"cloud.google.com/go/datastore"
 )
@@ -78,7 +77,7 @@ func Set(key string, body []byte) {
 
 	// k
 	if _, err := client.Put(ctx, k, &c); err != nil {
-		log.Fatalf("Failed to save task: %v", err)
+		fmt.Printf("Failed to save task: %v", err)
 	}
 
 	fmt.Printf("Saved %v: %v\n", k, c.Key)
