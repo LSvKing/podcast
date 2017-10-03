@@ -38,8 +38,6 @@ func FeedHandler(w http.ResponseWriter, r *http.Request) {
 		output = crawler.Qingting(vars["id"])
 	case "ximalaya":
 		output = crawler.Ximalaya(vars["id"])
-	case "ds":
-		output = crawler.Ds(vars["id"])
 	default:
 		output = []byte("类型不存在")
 	}
