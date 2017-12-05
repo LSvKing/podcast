@@ -18,7 +18,7 @@ func main() {
 
 	r.Headers("Content-Type", "application/xml")
 
-	log.Fatal(http.ListenAndServe(":80", r))
+	log.Fatal(http.ListenAndServe(":8088", r))
 	//crawler.Ximalaya("2684111")
 }
 
@@ -38,8 +38,12 @@ func FeedHandler(w http.ResponseWriter, r *http.Request) {
 		output = crawler.Qingting(vars["id"])
 	case "ximalaya":
 		output = crawler.Ximalaya(vars["id"])
+	case "pingshu8":
+		output = crawler.PingShu8(vars["id"])
 	default:
 		output = []byte("类型不存在")
+
+		//output = crawler.PingShu8(vars["id"])
 	}
 
 	w.Write(output)
