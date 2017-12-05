@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"encoding/xml"
 
+	"podcast/cache"
+
 	"golang.org/x/net/html/charset"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/imroc/req"
@@ -27,8 +29,6 @@ func PingShu8(id string) []byte{
 		return []byte("资源不存在")
 	}
 
-	// fmt.Println(string(resp.Body))
-
 	utfBody, err := charset.NewReader(resp.Body, "gbk")
 
 	if err != nil {
@@ -37,13 +37,16 @@ func PingShu8(id string) []byte{
 	}
 
 	doc, _ := goquery.NewDocumentFromReader(utfBody)
+	Time:= doc.Find(".info div").Eq(2).Find("span").Text()
+
+	if body, err := cache.Get("pingshu-" + id + "|" + Time); err == nil {
+		return body
+	}
 
 	resp.Body.Close()
 
 	Author := doc.Find(".info div").Eq(0).Find("span").First().Text()
 	owner:= doc.Find(".info div").Eq(0).Find("span").Last().Text()
-
-	Time:= doc.Find(".info div").Eq(2).Find("span").Text()
 
 	t, err := time.Parse("2006/1/02 15:04:05", Time)
 
@@ -77,7 +80,8 @@ func PingShu8(id string) []byte{
 	var items []Item
 
 	doc.Find("#playlist li").Each(func(i int, selection *goquery.Selection) {
-		fmt.Println(i,selection.Find("a").AttrOr("href","null"))
+
+		fmt.Println("items start",i)
 
 		h:= selection.Find("a").AttrOr("href","null")
 
@@ -93,7 +97,7 @@ func PingShu8(id string) []byte{
 			"User-Agent": "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3269.3 Safari/537.36",
 		}
 
-		r, _ :=req.Get(down_url,header)
+		r, _ :=req.Head(down_url,header)
 
 		items = append(items, Item{
 			Title:    selection.Find("a").Text(),
@@ -114,6 +118,7 @@ func PingShu8(id string) []byte{
 			//Duration: ,
 		})
 
+		fmt.Println("items end",i)
 	})
 
 	rss.Item = items
@@ -126,7 +131,7 @@ func PingShu8(id string) []byte{
 
 	o := []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + string(output))
 
-	//cache.Set("xima-"+id+"|"+date, o)
+	cache.Set("pingshu-"+id+"|"+Time, o)
 
 	return o
 }
