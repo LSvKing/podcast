@@ -13,3 +13,4 @@ import:
   version: ^1.0.3
 - package: github.com/imroc/req
   version: ^0.1.7
+- package: golang.org/x/net
