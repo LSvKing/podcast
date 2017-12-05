@@ -19,4 +19,4 @@
 .debug
 debug
 glide.lock
-vendor
+#vendor
