@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"encoding/xml"
 
+	"golang.org/x/net/html/charset"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/djimenez/iconv-go"
 	"github.com/imroc/req"
 	"regexp"
 	"time"
@@ -29,7 +29,7 @@ func PingShu8(id string) []byte{
 
 	// fmt.Println(string(resp.Body))
 
-	utfBody, err := iconv.NewReader(resp.Body, "gbk", "utf-8")
+	utfBody, err := charset.NewReader(resp.Body, "gbk")
 
 	if err != nil {
 		// handler error
