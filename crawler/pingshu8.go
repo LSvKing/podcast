@@ -15,7 +15,7 @@ import (
 func PingShu8(id string) []byte{
 	siteUrl := "http://m.pingshu8.com"
 
-	link:= "https://m.pingshu8.com/musiclist/mmc_" + id +".html"
+	link:= "https://m.pingshu8.com/MusicList/mmc_" + id +".html"
 
 	resp, err := http.Get(link)
 
