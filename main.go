@@ -18,8 +18,8 @@ func main() {
 
 	r.Headers("Content-Type", "application/xml")
 
-	log.Fatal(http.ListenAndServe("localhost:8088", r))
-	log.Fatal(http.ListenAndServe("podcast.lsvking.com:80", r))
+	log.Fatal(http.ListenAndServe(":80", r))
+	//log.Fatal(http.ListenAndServe("podcast.lsvking.com:80", r))
 	//crawler.Ximalaya("2684111")
 }
 
