@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"podcast/cache"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/imroc/req"
 
@@ -30,6 +32,16 @@ func Ivoix(id string)[]byte  {
 		return []byte("资源不存在")
 	}
 
+	doc, _ := goquery.NewDocumentFromResponse(resp.Response())
+
+	info:= doc.Find("#bookinfo")
+
+	mCount := info.Find("p").Eq(2).Text()
+
+	if body, err := cache.Get("ivoix-" + id + "|" + mCount); err == nil {
+		return body
+	}
+
 	mp3Resp, err := req.Get("http://m.ivoix.cn/js/h7.js")
 
 	re,_ := regexp.Compile(`ahead=(\"|\')(.*)(\"|\');`)
@@ -44,11 +56,7 @@ func Ivoix(id string)[]byte  {
 		log.Fatalln(err)
 	}
 
-	doc, _ := goquery.NewDocumentFromResponse(resp.Response())
-
 	pageNum := doc.Find(".pgsel option").Length()
-
-	info:= doc.Find("#bookinfo")
 
 	author:= info.Find("p").Eq(1).Text()
 	owner := info.Find("p").Eq(0).Text()
@@ -150,7 +158,7 @@ func Ivoix(id string)[]byte  {
 
 	o := []byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + string(output))
 
-	//cache.Set("pingshu-"+id+"|"+Time, o)
+	cache.Set("ivoix-"+id+"|"+mCount, o)
 
 	return o
 }
