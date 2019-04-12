@@ -1,12 +1,10 @@
 package main
 
 import (
+	"github.com/LSvKing/podcast/crawler"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-
-	"podcast/crawler"
-
-	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -38,7 +36,7 @@ func FeedHandler(w http.ResponseWriter, r *http.Request) {
 	case "qingting":
 		output = crawler.Qingting(vars["id"])
 	case "ximalaya":
-		output = crawler.Ximalaya(vars["id"])
+		output = crawler.XiMaLaYaNew(vars["id"])
 	case "pingshu8":
 		output = crawler.PingShu8(vars["id"])
 	case "ivoix":

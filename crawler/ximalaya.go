@@ -1,18 +1,18 @@
 package crawler
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/ddliu/go-httpclient"
+	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"encoding/json"
-	"io/ioutil"
-
-	"podcast/cache"
+	"github.com/LSvKing/podcast/cache"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -37,21 +37,40 @@ func Ximalaya(id string) []byte {
 		}
 	)
 
-	link := "http://www.ximalaya.com/album/" + id
+	// link := "http://www.ximalaya.com/album/" + id
 
-	resp, err := http.Get(link)
+	link := "https://www.ximalaya.com/youshengshu/20836133/"
+
+	//resp, err := http.Get(link)
+
+	//resty.SetDebug(true)
+	cookies := []*http.Cookie{
+		{
+			Name:  "1&_token",
+			Value: "82732660&F96F6A790ADC4NdV00658C2EBAD6967E63ACD97800D6127805D46E1D569708E047A1B47AD5337DD3",
+		}, {
+			Name:  "device_id",
+			Value: "xm_1555047403033_judn2nfdv2d3d6",
+		},
+	}
+
+	//client.SetCookies(cookies)
+	resp, err := httpclient.
+		WithCookie(cookies[0], cookies[1]).
+		Get(link, nil)
 
 	if err != nil || resp.StatusCode == http.StatusNotFound {
 		return []byte("资源不存在")
 	}
 
-	// fmt.Println(string(resp.Body))
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
 
-	doc, _ := goquery.NewDocumentFromResponse(resp)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
-	resp.Body.Close()
-
-	realLink := doc.Url.String()
+	//realLink := doc.Url.RawPath
+	//fmt.Println(realLink)
 
 	//if doc.Find(".mgr-5").Size() > 0 {
 	mgr5 := doc.Find(".mgr-5").Text()
@@ -129,7 +148,7 @@ func Ximalaya(id string) []byte {
 	}
 
 	for i := 1; i <= page; i++ {
-		u := realLink + "?page=" + strconv.Itoa(i)
+		u := link + "/p" + strconv.Itoa(i) + "/"
 
 		docList, _ := goquery.NewDocument(u)
 

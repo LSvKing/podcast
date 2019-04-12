@@ -41,8 +41,8 @@ type Guid struct {
 
 type Item struct {
 	Title     string    `xml:"title" json:"name"`
-	Subtitle  string    `xml:"itunes:subtitle" json:"name"`
-	Author    string    `xml:"itunes:author" json:"name"`
+	Subtitle  string    `xml:"itunes:subtitle" json:"subtitle"`
+	Author    string    `xml:"itunes:author" json:"author"`
 	PubDate   string    `xml:"pubDate"`
 	Summary   string    `xml:"itunes:summary"`
 	Guid      Guid      `xml:"guid"`
